@@ -1,4 +1,6 @@
 # TODO: Backup data to file using pickle and load on startup.
+# TODO: Make sure course exists before watching.
+# TODO: Print more data about course when watching like name and section.
 
 import discord
 import json
@@ -46,7 +48,7 @@ async def add(ctx, *args):
         await ctx.send(f'{ctx.author.mention} no valid new CRNs were entered.')
     else:
         users[ctx.author] = users.get(ctx.author, set()) | new_courses
-        await ctx.send(f'{ctx.author.mention} added {new_courses} to watchlist.')
+        await ctx.send(f'{ctx.author.mention} added {", ".join(new_courses)} to watchlist.')
 
 
 @bot.command(name='remove', help='Remove courses from your watchlist. Enter CRNs separated by spaces.')
@@ -69,7 +71,7 @@ async def remove(ctx, *args):
             ctx.author, set()) - removed_courses
         if users[ctx.author] == set():
             del users[ctx.author]
-        await ctx.send(f'{ctx.author.mention} removed {removed_courses} from watchlist.')
+        await ctx.send(f'{ctx.author.mention} removed {", ".join(removed_courses)} from watchlist.')
 
 
 @bot.command(name='list', help='List all courses on your watchlist.')
@@ -77,7 +79,7 @@ async def list(ctx):
     if ctx.author not in users:
         await ctx.send(f'{ctx.author.mention} you have no courses on your watchlist.')
     else:
-        await ctx.send(f'{ctx.author.mention} you are watching {users[ctx.author]}.')
+        await ctx.send(f'{ctx.author.mention} you are watching {", ".join(users[ctx.author])}.')
 
 
 @bot.command(name='watchers', help='List all users watching a course. Enter CRNs separated by spaces.')
@@ -91,7 +93,7 @@ async def watchers(ctx, *args):
             num_courses += 1
         else:
             names = {user.name for user in courses[arg]}
-            await ctx.send(f'{ctx.author.mention} {arg} is being watched by {names}.')
+            await ctx.send(f'{ctx.author.mention} {arg} is being watched by {", ".join(names)}.')
             num_courses += 1
     if num_courses == 0:
         await ctx.send(f'{ctx.author.mention} no valid watched CRNs were entered.')
