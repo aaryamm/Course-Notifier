@@ -1,6 +1,7 @@
 # TODO: Backup data to file using pickle and load on startup.
 # TODO: Make sure course exists before watching.
 # TODO: Print more data about course when watching like name and section.
+# TODO: Add type hints everywhere.
 
 import discord
 import json
