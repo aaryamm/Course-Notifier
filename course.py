@@ -40,7 +40,13 @@ class Course:
         self.users = set()
         
     def __str__(self) -> str:
-        return ''
+        
+        c = self._info
+        s = self._status
+        
+        return f'''CRN {c.crn}: {c.code} "{c.name}" 
+            Vacant Seats: {s.vacant}/{s.seats} 
+            Waitlist Seats: {s.waitlist.vacant}/{s.waitlist.seats}'''
     
     def add_user(self, user):
         self.users.add(user)
