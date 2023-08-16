@@ -1,5 +1,5 @@
 # TODO: Backup data to file using pickle and load on startup.
-# TODO: Add type hints and clean code.
+# TODO: Allow users to configure notifications.
 
 import discord
 import json
