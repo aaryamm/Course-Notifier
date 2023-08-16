@@ -42,6 +42,7 @@ async def on_command_error(ctx, error):
     name='add', help='Add courses to your watchlist. Enter CRNs separated by spaces.'
 )
 async def add(ctx, *args):
+    notify_users.cancel()
     user = ctx.author.mention
     for crn in args:
         if crn in courses:
@@ -58,6 +59,7 @@ async def add(ctx, *args):
                 await ctx.send(f'{ctx.author.mention} added {crn} to watchlist.')
             except ValueError as e:
                 await ctx.send(f'{ctx.author.mention} {e}')
+    notify_users.restart()
 
 
 @bot.command(
@@ -65,6 +67,7 @@ async def add(ctx, *args):
     help='Remove courses from your watchlist. Enter CRNs separated by spaces.',
 )
 async def remove(ctx, *args):
+    notify_users.cancel()
     user = ctx.author.mention
     for crn in args:
         if crn in courses:
@@ -75,10 +78,12 @@ async def remove(ctx, *args):
                 await ctx.send(f'{ctx.author.mention} you are not watching {crn}.')
         else:
             await ctx.send(f'{ctx.author.mention} {crn} is not being watched.')
+    notify_users.restart()
 
 
 @bot.command(name='list', help='List all courses on your watchlist.')
 async def list(ctx):
+    notify_users.cancel()
     watching = set()
     for course in courses.values():
         if course.has_user(ctx.author.mention):
@@ -87,15 +92,17 @@ async def list(ctx):
         await ctx.send(f'{ctx.author.mention} you have no courses on your watchlist.')
     else:
         await ctx.send(f'{ctx.author.mention} you are watching {", ".join(watching)}.')
+    notify_users.restart()
 
 
 @bot.command(name='clear', help='Clear all courses from your watchlist.')
 async def clear(ctx):
+    notify_users.cancel()
     for course in courses.values():
         if course.has_user(ctx.author.mention):
             course.remove_user(ctx.author.mention)
     await ctx.send(f'{ctx.author.mention} cleared watchlist.')
-
+    notify_users.restart()
 
 @tasks.loop(seconds=1)
 async def notify_users():
