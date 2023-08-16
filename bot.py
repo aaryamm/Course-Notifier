@@ -45,7 +45,7 @@ async def add(ctx, *args):
     user = ctx.author.mention
     for crn in args:
         if crn in courses:
-            if user in courses[crn].users:
+            if courses[crn].has_user(user):
                 await ctx.send(f'{ctx.author.mention} you are already watching {crn}.')
             else:
                 courses[crn].add_user(user)
@@ -68,7 +68,7 @@ async def remove(ctx, *args):
     user = ctx.author.mention
     for crn in args:
         if crn in courses:
-            if user in courses[crn].users:
+            if courses[crn].has_user(user):
                 courses[crn].remove_user(user)
                 await ctx.send(f'{ctx.author.mention} removed {crn} from watchlist.')
             else:
@@ -111,7 +111,7 @@ async def waitlist_notify(course):
 
 async def seat_notify(course):
     await bot.get_channel(CHANNEL).send(
-        f'Waitlist available: {course}. {course.user_mentions()}'
+        f'Seat available: {course}. {course.user_mentions()}'
     )
 
 

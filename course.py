@@ -3,7 +3,7 @@ from __future__ import annotations
 from bs4 import BeautifulSoup
 import requests
 from collections.abc import Awaitable, MutableSet, Set
-from typing import Any
+from typing import Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -41,28 +41,38 @@ class Course:
         term: str,
         waitlist_notif: Awaitable[Course],
         seat_notif: Awaitable[Course],
+        initial_users: Optional[Set[str]] = None
     ):
         self._info = self._create_course_info(crn, term)
         self._waitlist_notifier = waitlist_notif
         self._seat_notifier = seat_notif
-        self.users = set()
+        
+        if (initial_users is not None):
+            self._users = initial_users
 
     def __str__(self) -> str:
         c = self._info
         s = self._status
 
-        return f'''CRN {c.crn}: {c.code} "{c.name}" 
+        out = ''
+        if (c is not None):
+            out += f'CRN {c.crn}: {c.code} "{c.name}"'
+            
+        if (s is not None):
+            out += f'''
             Vacant Seats: {s.vacant}/{s.seats} 
-            Waitlist Seats: {s.waitlist.vacant}/{s.waitlist.seats}'''
+            Vacant Waitlist Seats: {s.waitlist.vacant}/{s.waitlist.seats}'''
+            
+        return out
 
     def add_user(self, user):
-        self.users.add(user)
+        self._users.add(user)
 
     def has_user(self, user) -> bool:
-        return user in self.users
+        return user in self._users
 
     def remove_user(self, user):
-        self.users.remove(user)
+        self._users.remove(user)
 
     def user_mentions(self) -> str:
         return " ".join(self._users)
@@ -72,7 +82,7 @@ class Course:
 
     async def update(self):
         '''Updates state and sends notifications'''
-
+        
         self._update_status()
 
         # State transitions
@@ -100,28 +110,32 @@ class Course:
             # course just closed
             self._seat_state = self._State.CLOSED
 
+        
+            
     ## Private Members
 
-    _info: CourseInfo
-    _status: CourseStatus
-    _users: MutableSet[Any]
+    _info: CourseInfo = None
+    _status: CourseStatus = None
+    _users: MutableSet[str] = set()
     _waitlist_notifier: Awaitable[Course]
     _seat_notifier: Awaitable[Course]
 
-    _waitlist_state: _State
-    _seat_state: _State
+    class _State(Enum):
+            CLOSED = 0
+            OPEN = 1
+
+    _waitlist_state: _State = _State.CLOSED
+    _seat_state: _State = _State.CLOSED
 
     def _update_status(self):
         self._status = self._fetch_update(self._info)
 
     ## Helper methods
 
-    class _State(Enum):
-        CLOSED = 0
-        OPEN = 1
-
+   
     @staticmethod
     def _create_course_info(crn: str, term: str) -> CourseInfo:
+                
         '''Fetches course info from the web'''
 
         if len(str(crn)) != 5 or not crn.isdigit():
@@ -153,7 +167,7 @@ class Course:
     @staticmethod
     def _fetch_update(info: CourseInfo) -> CourseStatus:
         '''Fetches course status from the web'''
-
+        
         with requests.get(info.url) as page:
             # Find table using soup
             soup = BeautifulSoup(page.content, 'html.parser')
