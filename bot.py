@@ -56,8 +56,8 @@ async def add(ctx, *args):
                 course.add_user(user)
                 courses[crn] = course
                 await ctx.send(f'{ctx.author.mention} added {crn} to watchlist.')
-            except:
-                await ctx.send(f'{ctx.author.mention} {crn} is not a valid CRN.')
+            except ValueError as e:
+                await ctx.send(f'{ctx.author.mention} {e}')
 
 
 @bot.command(
