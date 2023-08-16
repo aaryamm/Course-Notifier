@@ -39,7 +39,7 @@ class Course:
         old_status = self.status
         # TODO: Write logic to update state.
         if old_status is None:
-            return false
+            return False
         return old_status != self.status
     
     def add_user(self, user):
@@ -47,9 +47,3 @@ class Course:
 
     def remove_user(self, user):
         self.users.remove(user)
-
-
-if __name__ == '__main__':
-    c = Course('81574', '202308')
-    c.fetch_data()
-    print(c.data)
