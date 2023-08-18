@@ -1,11 +1,11 @@
 from __future__ import annotations
-
-from bs4 import BeautifulSoup
 import requests
 from collections.abc import Awaitable, MutableSet, Set
 from typing import Optional
 from dataclasses import dataclass
 from enum import Enum
+
+from bs4 import BeautifulSoup
 
 
 @dataclass
@@ -41,13 +41,13 @@ class Course:
         term: str,
         waitlist_notif: Awaitable[Course],
         seat_notif: Awaitable[Course],
-        initial_users: Optional[Set[str]] = None
+        initial_users: Optional[Set[str]] = None,
     ):
         self._info = self._create_course_info(crn, term)
         self._waitlist_notifier = waitlist_notif
         self._seat_notifier = seat_notif
-        
-        if (initial_users is not None):
+
+        if initial_users is not None:
             self._users = initial_users
 
     def __str__(self) -> str:
@@ -55,14 +55,14 @@ class Course:
         s = self._status
 
         out = ''
-        if (c is not None):
+        if c is not None:
             out += f'CRN {c.crn}: {c.code} "{c.name}"'
-            
-        if (s is not None):
+
+        if s is not None:
             out += f'''
             Vacant Seats: {s.vacant}/{s.seats} 
             Vacant Waitlist Seats: {s.waitlist.vacant}/{s.waitlist.seats}'''
-            
+
         return out
 
     def add_user(self, user):
@@ -82,7 +82,7 @@ class Course:
 
     async def update(self):
         '''Updates state and sends notifications'''
-        
+
         self._update_status()
 
         # State transitions
@@ -110,8 +110,6 @@ class Course:
             # course just closed
             self._seat_state = self._State.CLOSED
 
-        
-            
     ## Private Members
 
     _info: CourseInfo = None
@@ -121,8 +119,8 @@ class Course:
     _seat_notifier: Awaitable[Course]
 
     class _State(Enum):
-            CLOSED = 0
-            OPEN = 1
+        CLOSED = 0
+        OPEN = 1
 
     _waitlist_state: _State = _State.CLOSED
     _seat_state: _State = _State.CLOSED
@@ -132,10 +130,8 @@ class Course:
 
     ## Helper methods
 
-   
     @staticmethod
     def _create_course_info(crn: str, term: str) -> CourseInfo:
-                
         '''Fetches course info from the web'''
 
         if len(str(crn)) != 5 or not crn.isdigit():
@@ -167,7 +163,7 @@ class Course:
     @staticmethod
     def _fetch_update(info: CourseInfo) -> CourseStatus:
         '''Fetches course status from the web'''
-        
+
         with requests.get(info.url) as page:
             # Find table using soup
             soup = BeautifulSoup(page.content, 'html.parser')
