@@ -1,3 +1,4 @@
+# FIXME: Courses that have no users are not being removed from the watchlist.
 # FIXME: Course another user added comes up as being watched by user.
 # TODO: Use threading to speed up updates.
 # TODO: Backup data to file using pickle and load on startup.
@@ -75,16 +76,13 @@ async def remove(ctx, *args):
     notify_users.cancel()
     user = ctx.author.mention
     for crn in args:
-        if crn in courses:
-            if courses[crn].has_user(user):
-                courses[crn].remove_user(user)
-                if len(courses[crn].user_mentions()) == 0:
-                    del courses[crn]
-                await ctx.send(f'{user} removed {crn} from watchlist.')
-            else:
-                await ctx.send(f'{user} you are not watching {crn}.')
+        if courses[crn].has_user(user):
+            courses[crn].remove_user(user)
+            if len(courses[crn].user_mentions()) == 0:
+                del courses[crn]
+            await ctx.send(f'{user} removed {crn} from watchlist.')
         else:
-            await ctx.send(f'{user} {crn} is not being watched.')
+            await ctx.send(f'{user} you are not watching {crn}.')
     notify_users.start()
 
 
