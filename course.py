@@ -33,6 +33,12 @@ class CourseStatus:
 
 
 class Course:
+    
+    ## Static Definitions
+    class _State(Enum):
+        CLOSED = 0
+        OPEN = 1
+    
     ## Public Interface
 
     def __init__(
@@ -43,6 +49,7 @@ class Course:
         seat_notif: Awaitable[Course],
         initial_users: Optional[Set[str]] = None,
     ):
+        self._init_vars()
         self._info = self._create_course_info(crn, term)
         self._waitlist_notifier = waitlist_notif
         self._seat_notifier = seat_notif
@@ -75,7 +82,7 @@ class Course:
         self._users.remove(user)
 
     def user_mentions(self) -> str:
-        return " ".join(self._users)
+        return "".join(self._users)
 
     def crn(self):
         return self._info.crn
@@ -111,19 +118,16 @@ class Course:
             self._seat_state = self._State.CLOSED
 
     ## Private Members
+    
+    def _init_vars(self):
+        self._info: CourseInfo = None
+        self._status: CourseStatus = None
+        self._users: MutableSet[str] = set()
+        self._waitlist_notifier: Awaitable[Course]
+        self._seat_notifier: Awaitable[Course]
+        self._waitlist_state: self._State = self._State.CLOSED
+        self._seat_state: self._State = self._State.CLOSED
 
-    _info: CourseInfo = None
-    _status: CourseStatus = None
-    _users: MutableSet[str] = set()
-    _waitlist_notifier: Awaitable[Course]
-    _seat_notifier: Awaitable[Course]
-
-    class _State(Enum):
-        CLOSED = 0
-        OPEN = 1
-
-    _waitlist_state: _State = _State.CLOSED
-    _seat_state: _State = _State.CLOSED
 
     def _update_status(self):
         self._status = self._fetch_update(self._info)

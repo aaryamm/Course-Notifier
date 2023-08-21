@@ -1,11 +1,9 @@
-# FIXME: Courses that have no users are not being removed from the watchlist.
-# FIXME: Course another user added comes up as being watched by user.
 # TODO: Use threading to speed up updates.
 # TODO: Backup data to file using pickle and load on startup.
 # TODO: Make sure errors are being properly handled and sent as messages.
 # TODO: Make bot messages prettier (standardize punctuation).
 # TODO: Allow users to configure notifications.
-# TODO: Admin command to clear chat.
+# TODO: Admin command to clear chat.d
 
 import discord
 import json
