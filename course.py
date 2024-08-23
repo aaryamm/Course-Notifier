@@ -144,6 +144,7 @@ class Course:
         url = f'https://oscar.gatech.edu/bprod/bwckschd.p_disp_detail_sched?term_in={term}&crn_in={crn}'
 
         with requests.get(url) as page:
+            print(page)
             # Find header using soup
             soup = BeautifulSoup(page.content, 'html.parser')
             headers = soup.find_all('th', class_="ddlabel")
